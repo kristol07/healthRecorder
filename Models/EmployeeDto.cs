@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 
 namespace healthRecorder.Models
 {
-    public class Identity
+    public class EmployeeDto
     {
         public uint GinNumber { get; set; }
 
-        public string FirstName { get; set; }
+        public string Name { get; set; }
 
-        public string LastName { get; set; }
+        public ICollection<RecordDto> Records { get; set; }
+            = new List<RecordDto>();
     }
 }

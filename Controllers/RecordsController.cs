@@ -2,72 +2,151 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using healthRecorder.Models;
 using healthRecorder.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace healthRecorder.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/records")]
     [ApiController]
     public class RecordsController : ControllerBase
     {
-        private readonly IRecordsService _recordsService;
+        private readonly IRecordsRepository _recordsRepository;
+        private readonly IMapper _mapper;
 
-        public RecordsController(IRecordsService recordsService)
+        public RecordsController(IRecordsRepository recordsRepository, IMapper mapper)
         {
-            _recordsService = recordsService;
+            _recordsRepository = recordsRepository;
+            _mapper = mapper;
         }
 
-        // GET: api/<RecordsController>
-        [HttpGet]
-        public IEnumerable<Record> Get()
+
+        [HttpGet()]
+        public ActionResult<IEnumerable<EmployeeDto>> GetAllRecords()
         {
-            return _recordsService.GetAllRecordsAsync().Result;
+            try
+            {
+                var allRecords = _recordsRepository.GetAllRecords();
+                return Ok(_mapper.Map<IEnumerable<EmployeeDto>>(allRecords));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
-        // GET api/<RecordsController>/5
-        [HttpGet("{gin}")]
-        public string Get(uint gin)
+
+        [HttpGet("{employeeId}")]
+        public ActionResult<IEnumerable<RecordDto>> GetRecordsForEmployee(Guid employeeId)
         {
-            return "value";
+            try
+            {
+                var allRecordsForEmployee = _recordsRepository.GetRecordsForEmployee(employeeId);
+
+                if (allRecordsForEmployee == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(_mapper.Map<RecordDto>(allRecordsForEmployee));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
-        // GET api/<RecordsController>/2020-01-01
-        [HttpGet("{checkDate}")]
-        public string Get(DateTime checkDate)
+
+        [HttpGet("{employeeId}/{checkDate:DateTime}", Name = "GetRecord")]
+        public ActionResult<RecordDto> GetRecord(Guid employeeId, DateTime checkDate)
         {
-            return "value";
+            try
+            {
+                var record = _recordsRepository.GetRecord(employeeId, checkDate);
+
+                if (record == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(_mapper.Map<RecordDto>(record));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
-        // POST api/<RecordsController>
+
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<RecordDto> CreateRecord([FromBody] RecordForCreationDto record)
         {
+            try
+            {
+                var recordEntity = _mapper.Map<Record>(record);
+                _recordsRepository.AddRecord(recordEntity);
+                _recordsRepository.Save();
 
+                var recordToReturn = _mapper.Map<RecordDto>(recordEntity);
+                return CreatedAtRoute("GetRecord",
+                        new
+                        {
+                            employeeId = recordToReturn.EmployeeId,
+                            checkDate = recordToReturn.CheckDate
+                        },
+                        recordToReturn);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
-        // PUT api/<RecordsController>/5/2020-01-01
-        [HttpPut("{id}/{checkDate}")]
-        public void Put(uint ginNumber, DateTime checkDate, [FromBody] string value)
+
+        //[HttpPut("{id}/{checkDate}")]
+        //public void Put(int gin, DateTime checkDate, [FromBody] RecordModel recordModel)
+        //{
+
+        //}
+
+        //[HttpDelete("{employeeId}")]
+        //public ActionResult DeleteRecordsForEmployee(Guid employeeId)
+        //{
+        //    var employeeExists = _recordsRepository.EmployeeExists(employeeId);
+
+        //    if(employeeExists == false)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _recordsRepository.de
+        //}
+
+        [HttpDelete("{employeeId}/{checkDate:DateTime}")]
+        public ActionResult DeleteRecord(Guid employeeId, DateTime checkDate)
         {
+            try
+            {
+                var recordExists = _recordsRepository.RecordExists(employeeId, checkDate);
 
-        }
+                if (recordExists == false)
+                {
+                    return NotFound();
+                }
 
-        // DELETE api/<RecordsController>/5
-        [HttpDelete("{gin}")]
-        public void Delete(uint gin)
-        {
+                _recordsRepository.DeleteRecord(employeeId, checkDate);
+                _recordsRepository.Save();
 
-        }
-
-        // DELETE api/<RecordsController>/5/2020-01-01
-        [HttpDelete("{gin}/{checkDate}")]
-        public void Delete(uint gin, DateTime checkDate)
-        {
-
+                return NoContent();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
     }
