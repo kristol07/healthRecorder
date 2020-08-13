@@ -1,5 +1,5 @@
-﻿using healthRecorder.Entities;
-using healthRecorder.Models;
+﻿using healthRecorder.Data;
+using healthRecorder.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -13,30 +13,30 @@ namespace healthRecorder.Services
 {
     public class RecordsRepository : IRecordsRepository
     {
-        private readonly IMongoCollection<Employee> _records;
+        private readonly IMongoCollection<Employee> _employees;
+        private readonly IMongoCollection<Record> _records;
 
         public RecordsRepository(IRecordsDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
 
-            _records = database.GetCollection<Employee>(settings.RecordsCollectionName);
+            _employees = database.GetCollection<Employee>(settings.EmployeesCollectionName);
+            _records = database.GetCollection<Record>(settings.RecordsCollectionName);
         }
 
-        public IEnumerable<Employee> GetAllRecords()
+        public  IEnumerable<Employee> GetAllEmployees()
         {
-            return _records.Find(new BsonDocument()).ToList();
+            return  _employees.Find(new BsonDocument()).ToList();
         }
 
-        public IEnumerable<Record> GetRecordsForEmployee(Guid employeeId)
+        public IEnumerable<Record> GetRecordsForEmployee(string employeeId)
         {
-            var filter = Builders<Employee>.Filter.Eq("Id", employeeId);
-            var projection = Builders<Employee>.Projection.Include("Records");
-            var recordsDoc = _records.Find(filter).Project(projection).First();
-            return BsonSerializer.Deserialize<IEnumerable<Record>>(recordsDoc);
+            var filter = Builders<Record>.Filter.Eq("EmployeeId", employeeId);
+            return _records.Find(filter).ToList();
         }
 
-        public Record? GetRecord(Guid employeeId, DateTime checkDate)
+        public Record? GetRecord(string employeeId, DateTime checkDate)
         {
             var records = GetRecordsForEmployee(employeeId);
             return records.ToList().Find(x => x.CheckDate == checkDate);
@@ -44,22 +44,27 @@ namespace healthRecorder.Services
 
         public void AddRecord(Record newRecord)
         {
-            throw new NotImplementedException();
+             _records.InsertOne(newRecord);
         }
 
-        public void DeleteRecord(Guid employeeId, DateTime checkDate)
+        public void DeleteRecord(string employeeId, DateTime checkDate)
         {
-            throw new NotImplementedException();
+            var builder = Builders<Record>.Filter;
+            var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
+             _records.DeleteOne(filter);
         }
 
-        public bool EmployeeExists(Guid employeedId)
+        public bool EmployeeExists(string employeedId)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Employee>.Filter.Eq("EmployeeId", employeedId);
+            return _employees.Find(filter).Any();
         }
 
-        public bool RecordExists(Guid employeeId, DateTime checkDate)
+        public bool RecordExists(string employeeId, DateTime checkDate)
         {
-            throw new NotImplementedException();
+            var builder = Builders<Record>.Filter;
+            var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
+            return _records.Find(filter).Any();
         }
 
         public bool Save()
@@ -67,7 +72,7 @@ namespace healthRecorder.Services
             throw new NotImplementedException();
         }
 
-        public void UpdateRecord(Record newRecord, Guid employeeId, DateTime checkDate)
+        public void UpdateRecord(Record newRecord, string employeeId, DateTime checkDate)
         {
             throw new NotImplementedException();
         }

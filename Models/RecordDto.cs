@@ -7,7 +7,7 @@ namespace healthRecorder.Models
 {
     public class RecordDto
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         public DateTime CheckDate { get; set; }
 
@@ -16,7 +16,5 @@ namespace healthRecorder.Models
         public bool? HasSymptoms { get; set; }
 
         public double? Temperature { get; set; }
-
-        public Guid EmployeeId { get; set; }
     }
 }

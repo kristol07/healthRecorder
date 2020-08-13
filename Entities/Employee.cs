@@ -13,8 +13,9 @@ namespace healthRecorder.Entities
     {
         [Key]
         [BsonId]
-        [BsonElement("Id")]
-        public Guid Id { get; set; }
+        [BsonElement("EmployeeId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         [BsonElement("GinNumber")]
         [BsonRepresentation(BsonType.Int32)]
@@ -28,9 +29,5 @@ namespace healthRecorder.Entities
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
-
-        [BsonElement("Records")]
-        public ICollection<Record> Records { get; set; }
-            = new List<Record>();
     }
 }

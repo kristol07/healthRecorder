@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace healthRecorder.Models
 {
+    /// <summary>
+    /// The record for adding to database
+    /// </summary>
     public class RecordForCreationDto
     {
+        /// <summary>
+        /// Checkdate of this **record**
+        /// </summary>
         public DateTime CheckDate { get; set; }
 
         public bool? HasHighRiskRegionTravelHistory { get; set; }
@@ -16,6 +22,9 @@ namespace healthRecorder.Models
 
         public double? Temperature { get; set; }
 
-        public Guid EmployeeId { get; set; }
+        /// <summary>
+        /// The id of associated employee
+        /// </summary>
+        public string EmployeeId { get; set; }
     }
 }

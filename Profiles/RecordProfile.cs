@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using healthRecorder.Entities;
 using healthRecorder.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace healthRecorder.Data
             CreateMap<Record, RecordDto>();
 
             CreateMap<RecordForCreationDto, Record>();
+
+            CreateMap<Record, SingleRecordDto>();
         }
     }
 }

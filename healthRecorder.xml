@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>healthRecorder</name>
+    </assembly>
+    <members>
+        <member name="M:healthRecorder.Controllers.RecordsController.GetEmployees">
+            <summary>
+            Get a list of records for all employees
+            </summary>
+            <returns>An ActionResult of type IEnumerable of EmployeeDto</returns>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.GetRecordsForEmployee(System.String)">
+            <summary>
+            Get health records of an employee by his/her id 
+            </summary>
+            <param name="employeeId"></param>
+            <returns>An ActionResult of type SingleRecordDto </returns>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.GetRecord(System.String,System.DateTime)">
+            <summary>
+            Get the record of one employee for specific date
+            </summary>
+            <param name="employeeId"></param>
+            <param name="checkDate"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.CreateRecord(healthRecorder.Models.RecordForCreationDto)">
+            <summary>
+            Add a new record for specific employee
+            </summary>
+            <param name="record"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.DeleteRecord(System.String,System.DateTime)">
+            <summary>
+            Delete one record
+            </summary>
+            <param name="employeeId"></param>
+            <param name="checkDate"></param>
+            <returns>An ActionResult</returns>
+        </member>
+        <member name="T:healthRecorder.Models.EmployeeDto">
+            <summary>
+            An employee with Id, GinNumber, Name and records fields
+            </summary>
+        </member>
+        <member name="P:healthRecorder.Models.EmployeeDto.Id">
+            <summary>
+            The id of the **employee**
+            </summary>
+        </member>
+        <member name="P:healthRecorder.Models.EmployeeDto.GinNumber">
+            <summary>
+            The GinNumber of the **employee**
+            </summary>
+        </member>
+        <member name="P:healthRecorder.Models.EmployeeDto.Name">
+            <summary>
+            The Name of the **employee**
+            </summary>
+        </member>
+        <member name="T:healthRecorder.Models.RecordForCreationDto">
+            <summary>
+            The record for adding to database
+            </summary>
+        </member>
+        <member name="P:healthRecorder.Models.RecordForCreationDto.CheckDate">
+            <summary>
+            Checkdate of this **record**
+            </summary>
+        </member>
+        <member name="P:healthRecorder.Models.RecordForCreationDto.EmployeeId">
+            <summary>
+            The id of associated employee
+            </summary>
+        </member>
+    </members>
+</doc>

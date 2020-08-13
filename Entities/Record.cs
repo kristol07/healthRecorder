@@ -8,16 +8,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace healthRecorder.Models
+namespace healthRecorder.Entities
 {
     public class Record
     {
         [Key]
         [BsonId]
-        public Guid Id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         [Required]
-        [BsonDateTimeOptions(DateOnly = true)]
+        [BsonElement("CheckDate")]
         public DateTime CheckDate { get; set; }
 
         public bool? HasHighRiskRegionTravelHistory { get; set; }
@@ -26,10 +27,11 @@ namespace healthRecorder.Models
 
         public double? Temperature { get; set; }
 
-        [BsonIgnore]
+        public string EmployeeId { get; set; }
+
+        //[BsonIgnore]
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }
 
-        public Guid EmployeeId { get; set; }
     }
 }

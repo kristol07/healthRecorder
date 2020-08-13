@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using healthRecorder.Data;
 using healthRecorder.Models;
 using healthRecorder.Services;
 using Microsoft.AspNetCore.Builder;
@@ -36,7 +39,23 @@ namespace healthRecorder
 
             services.AddSingleton<RecordsRepository>();
 
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(
+                setupAction =>
+                {
+                    //setupAction.SwaggerDoc(
+                    //    "RecordsOpenAPISpecification",
+                    //    new Microsoft.OpenApi.Models.OpenApiInfo()
+                    //    {
+                    //        Title = "Health Records API",
+                    //        Description = "Through this API you can access employee health records.",
+                    //    });
+
+                    var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                    var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+                    setupAction.IncludeXmlComments(xmlCommentsFullPath);
+                });
+
 
             services.AddControllers();
 
