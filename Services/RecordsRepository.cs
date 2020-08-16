@@ -32,7 +32,7 @@ namespace healthRecorder.Services
 
         public Employee GetEmployee(string employeeId)
         {
-            var filter = Builders<Employee>.Filter.Eq("EmployeeId", employeeId);
+            var filter = Builders<Employee>.Filter.Eq("Id", employeeId);
             return _employees.Find(filter).First();
         }
 
@@ -50,7 +50,7 @@ namespace healthRecorder.Services
         public Record GetRecord(string employeeId, DateTime checkDate)
         {
             var records = GetRecordsForEmployee(employeeId);
-            return records.ToList().Find(x => x.CheckDate == checkDate);
+            return records.ToList().Find(x => x.CheckDate.Date == checkDate.Date);
         }
 
         public void AddRecord(Record newRecord)
@@ -67,7 +67,7 @@ namespace healthRecorder.Services
 
         public bool EmployeeExists(string employeedId)
         {
-            var filter = Builders<Employee>.Filter.Eq("EmployeeId", employeedId);
+            var filter = Builders<Employee>.Filter.Eq("Id", employeedId);
             return _employees.Find(filter).Any();
         }
 

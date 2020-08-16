@@ -12,12 +12,8 @@ namespace healthRecorder.Entities
     public class Employee
     {
         [BsonId]
-        [BsonElement("EmployeeId")]
-        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        [BsonElement("GinNumber")]
-        [BsonRepresentation(BsonType.Int32)]
         [Required]
         public uint GinNumber { get; set; }
 

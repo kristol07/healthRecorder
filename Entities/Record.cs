@@ -12,18 +12,13 @@ namespace healthRecorder.Entities
 {
     public class Record
     {
-
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        [BsonElement("RecordId")]
         public string Id { get; set; }
 
         [Required]
-        [BsonElement("EmployeeId")]
         public string EmployeeId { get; set; }
 
         [Required]
-        [BsonElement("CheckDate")]
         public DateTime CheckDate { get; set; }
 
         public bool? HasHighRiskRegionTravelHistory { get; set; }

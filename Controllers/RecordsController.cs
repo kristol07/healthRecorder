@@ -42,6 +42,7 @@ namespace healthRecorder.Controllers
             try
             {
                 var allRecords = _recordsRepository.GetAllRecords();
+
                 return Ok(_mapper.Map<IEnumerable<SingleRecordDto>>(allRecords));
             }
             catch
@@ -64,14 +65,14 @@ namespace healthRecorder.Controllers
         {
             try
             {
-                //if (!_recordsRepository.EmployeeExists(employeeId))
-                //{
-                //    return NotFound();
-                //}
+                if (!_recordsRepository.EmployeeExists(employeeId))
+                {
+                    return NotFound();
+                }
 
                 var allRecordsForEmployee = _recordsRepository.GetRecordsForEmployee(employeeId);
 
-                return Ok(_mapper.Map<RecordDto>(allRecordsForEmployee));
+                return Ok(_mapper.Map<IEnumerable<RecordDto>>(allRecordsForEmployee));
             }
             catch
             {
