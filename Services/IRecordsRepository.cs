@@ -9,9 +9,13 @@ namespace healthRecorder.Services
 {
     public interface IRecordsRepository
     {
-        IEnumerable<Employee> GetAllEmployees();
+
+        IEnumerable<Record> GetAllRecords();
         IEnumerable<Record> GetRecordsForEmployee(string employeeId);
         Record GetRecord(string employeeId, DateTime checkDate);
+
+        IEnumerable<Employee> GetAllEmployees();
+        Employee GetEmployee(string employeeId);
 
         void AddRecord(Record newRecord);
         void UpdateRecord(Record newRecord, string employeeId, DateTime checkDate);
@@ -19,5 +23,19 @@ namespace healthRecorder.Services
         bool EmployeeExists(string employeedId);
         bool RecordExists(string employeeId, DateTime checkDate);
         bool Save();
+    }
+
+    public interface IRecordsRepositoryAsync
+    {
+        Task<IEnumerable<Employee>> GetAllEmployeesAsync();
+        Task<IEnumerable<Record>> GetRecordsForEmployeeAsync(string employeeId);
+        Task<Record> GetRecordAsync(string employeeId, DateTime checkDate);
+
+        Task AddRecordAsync(Record newRecord);
+        Task UpdateRecordAsync(Record newRecord, string employeeId, DateTime checkDate);
+        Task DeleteRecordAsync(string employeeId, DateTime checkDate);
+        Task EmployeeExistsAsync(string employeedId);
+        Task RecordExistsAsync(string employeeId, DateTime checkDate);
+        Task SaveAsync();
     }
 }

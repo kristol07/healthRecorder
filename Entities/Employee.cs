@@ -11,7 +11,6 @@ namespace healthRecorder.Entities
 {
     public class Employee
     {
-        [Key]
         [BsonId]
         [BsonElement("EmployeeId")]
         [BsonRepresentation(BsonType.ObjectId)]

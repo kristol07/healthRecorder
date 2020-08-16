@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace healthRecorder.Controllers
     [Produces("application/json", "application/xml")]
     [Route("api/records")]
     [ApiController]
+    [ProducesResponseType(500)]
     public class RecordsController : ControllerBase
     {
         private readonly IRecordsRepository _recordsRepository;
@@ -27,18 +29,20 @@ namespace healthRecorder.Controllers
             _mapper = mapper;
         }
 
+
         /// <summary>
-        /// Get a list of records for all employees
+        /// Get a list of all recprds
         /// </summary>
-        /// <returns>An ActionResult of type IEnumerable of EmployeeDto</returns>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<EmployeeDto>> GetEmployees()
+        /// <returns>List of records saved in database</returns>
+        /// <response code="200">An ActionResult of list of type SingleRecordDto</response>
+        [HttpGet("", Name = "GetRecords")]
+        [ProducesResponseType(typeof(IEnumerable<SingleRecordDto>), 200)]
+        public ActionResult<IEnumerable<SingleRecordDto>> GetRecords()
         {
             try
             {
-                var allRecords =  _recordsRepository.GetAllEmployees();
-                return Ok(_mapper.Map<IEnumerable<EmployeeDto>>(allRecords));
+                var allRecords = _recordsRepository.GetAllRecords();
+                return Ok(_mapper.Map<IEnumerable<SingleRecordDto>>(allRecords));
             }
             catch
             {
@@ -49,23 +53,25 @@ namespace healthRecorder.Controllers
         /// <summary>
         /// Get health records of an employee by his/her id 
         /// </summary>
-        /// <param name="employeeId"></param>
-        /// <returns>An ActionResult of type SingleRecordDto </returns>
-        [HttpGet("{employeeId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<SingleRecordDto>> GetRecordsForEmployee(string employeeId)
+        /// <param name="employeeId">The id of the employee you want to get</param>
+        /// <returns>An ActionResult of list of type RecordDto</returns>
+        /// <response code="200">All records of this employee returned</response>
+        /// <response code="404">Employee not found</response>
+        [HttpGet("{employeeId}", Name = "GetRecordsForEmployee")]
+        [ProducesResponseType(typeof(IEnumerable<RecordDto>), 200)]
+        [ProducesResponseType(404)]
+        public ActionResult<IEnumerable<RecordDto>> GetRecordsForEmployee(string employeeId)
         {
             try
             {
-                if (!_recordsRepository.EmployeeExists(employeeId))
-                {
-                    return NotFound();
-                }
+                //if (!_recordsRepository.EmployeeExists(employeeId))
+                //{
+                //    return NotFound();
+                //}
 
-                var allRecordsForEmployee =  _recordsRepository.GetRecordsForEmployee(employeeId);
+                var allRecordsForEmployee = _recordsRepository.GetRecordsForEmployee(employeeId);
 
-                return Ok(_mapper.Map<SingleRecordDto>(allRecordsForEmployee));
+                return Ok(_mapper.Map<RecordDto>(allRecordsForEmployee));
             }
             catch
             {
@@ -79,9 +85,11 @@ namespace healthRecorder.Controllers
         /// <param name="employeeId"></param>
         /// <param name="checkDate"></param>
         /// <returns>An ActionResult of type SingleRecordDto</returns>
+        /// <response code="200">Returns requested record</response>
+        /// <response code="404">Record not found</response>
         [HttpGet("{employeeId}/{checkDate:DateTime}", Name = "GetRecord")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(SingleRecordDto), 200)]
+        [ProducesResponseType(404)]
         public ActionResult<SingleRecordDto> GetRecord(string employeeId, DateTime checkDate)
         {
             try
@@ -106,14 +114,66 @@ namespace healthRecorder.Controllers
         /// </summary>
         /// <param name="record"></param>
         /// <returns>An ActionResult of type SingleRecordDto</returns>
-        [HttpPost]
+        /// <response code="201">Record Added.</response>
+        [HttpPost("", Name = "AddNewRecord")]
         [Consumes("application/json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        public ActionResult<SingleRecordDto> CreateRecord([FromBody] RecordForCreationDto record)
+        [ProducesResponseType(typeof(SingleRecordDto), 201)]
+        [ProducesResponseType(400)]
+        public ActionResult<SingleRecordDto> CreateRecord([FromBody, Required] RecordForCreationDto record)
         {
             try
             {
                 var recordEntity = _mapper.Map<Record>(record);
+
+                if (_recordsRepository.RecordExists(recordEntity.EmployeeId, recordEntity.CheckDate))
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
+
+                _recordsRepository.AddRecord(recordEntity);
+
+                var recordToReturn = _mapper.Map<SingleRecordDto>(recordEntity);
+                return CreatedAtRoute("GetRecord",
+                        new
+                        {
+                            employeeId = recordToReturn.EmployeeId,
+                            checkDate = recordToReturn.CheckDate
+                        },
+                        recordToReturn);
+
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// Update an existed record
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="checkDate"></param>
+        /// <param name="updatedRecord"></param>
+        /// <returns>An ActionResult of type SingleRecordDto</returns>
+        /// <response code="204">Record updated.</response>
+        /// <response code="404">Record not found.</response>
+        [HttpPut("{employeeId}/{checkDate}")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(SingleRecordDto), 204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public ActionResult<SingleRecordDto> Put(string employeeId, DateTime checkDate, [FromBody, Required] RecordForUpdateDto updatedRecord)
+        {
+            try
+            {
+                var recordEntity = _recordsRepository.GetRecord(employeeId, checkDate);
+                if (recordEntity == null)
+                {
+                    return NotFound();
+                }
+
+                _mapper.Map(updatedRecord, recordEntity);
+
                 _recordsRepository.AddRecord(recordEntity);
                 _recordsRepository.Save();
 
@@ -133,34 +193,15 @@ namespace healthRecorder.Controllers
         }
 
 
-        //[HttpPut("{id}/{checkDate}")]
-        //public void Put(int gin, DateTime checkDate, [FromBody] RecordModel recordModel)
-        //{
-
-        //}
-
-        //[HttpDelete("{employeeId}")]
-        //public ActionResult DeleteRecordsForEmployee(Guid employeeId)
-        //{
-        //    var employeeExists = _recordsRepository.EmployeeExists(employeeId);
-
-        //    if(employeeExists == false)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _recordsRepository.de
-        //}
-
         /// <summary>
         /// Delete one record
         /// </summary>
         /// <param name="employeeId"></param>
         /// <param name="checkDate"></param>
         /// <returns>An ActionResult</returns>
-        [HttpDelete("{employeeId}/{checkDate:DateTime}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpDelete("{employeeId}/{checkDate:DateTime}", Name = "DeleteRecord")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public ActionResult DeleteRecord(string employeeId, DateTime checkDate)
         {
             try

@@ -16,6 +16,8 @@ namespace healthRecorder.Data
 
             CreateMap<RecordForCreationDto, Record>();
 
+            CreateMap<RecordForUpdateDto, Record>();
+
             CreateMap<Record, SingleRecordDto>();
         }
     }

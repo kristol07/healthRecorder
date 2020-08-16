@@ -1,6 +1,8 @@
 ﻿using healthRecorder.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,22 +11,24 @@ namespace healthRecorder.Models
     /// <summary>
     /// The record for adding to database
     /// </summary>
-    public class RecordForCreationDto
+    public class RecordForCreationDto : RecordForUpdateDto
     {
         /// <summary>
         /// Checkdate of this **record**
         /// </summary>
+        [Required]
         public DateTime CheckDate { get; set; }
 
+        [DefaultValue(false)]
         public bool? HasHighRiskRegionTravelHistory { get; set; }
 
+        [DefaultValue(false)]
         public bool? HasSymptoms { get; set; }
-
-        public double? Temperature { get; set; }
 
         /// <summary>
         /// The id of associated employee
         /// </summary>
+        [Required]
         public string EmployeeId { get; set; }
     }
 }

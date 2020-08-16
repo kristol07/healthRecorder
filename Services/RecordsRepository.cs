@@ -25,9 +25,20 @@ namespace healthRecorder.Services
             _records = database.GetCollection<Record>(settings.RecordsCollectionName);
         }
 
-        public  IEnumerable<Employee> GetAllEmployees()
+        public IEnumerable<Employee> GetAllEmployees()
         {
-            return  _employees.Find(new BsonDocument()).ToList();
+            return _employees.Find(new BsonDocument()).ToList();
+        }
+
+        public Employee GetEmployee(string employeeId)
+        {
+            var filter = Builders<Employee>.Filter.Eq("EmployeeId", employeeId);
+            return _employees.Find(filter).First();
+        }
+
+        public IEnumerable<Record> GetAllRecords()
+        {
+            return _records.Find(new BsonDocument()).ToList();
         }
 
         public IEnumerable<Record> GetRecordsForEmployee(string employeeId)
@@ -36,7 +47,7 @@ namespace healthRecorder.Services
             return _records.Find(filter).ToList();
         }
 
-        public Record? GetRecord(string employeeId, DateTime checkDate)
+        public Record GetRecord(string employeeId, DateTime checkDate)
         {
             var records = GetRecordsForEmployee(employeeId);
             return records.ToList().Find(x => x.CheckDate == checkDate);
@@ -44,14 +55,14 @@ namespace healthRecorder.Services
 
         public void AddRecord(Record newRecord)
         {
-             _records.InsertOne(newRecord);
+            _records.InsertOne(newRecord);
         }
 
         public void DeleteRecord(string employeeId, DateTime checkDate)
         {
             var builder = Builders<Record>.Filter;
             var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
-             _records.DeleteOne(filter);
+            _records.DeleteOne(filter);
         }
 
         public bool EmployeeExists(string employeedId)
@@ -74,7 +85,11 @@ namespace healthRecorder.Services
 
         public void UpdateRecord(Record newRecord, string employeeId, DateTime checkDate)
         {
-            throw new NotImplementedException();
+            if (RecordExists(employeeId, checkDate))
+            {
+                DeleteRecord(employeeId, checkDate);
+                AddRecord(newRecord);
+            }
         }
 
     }

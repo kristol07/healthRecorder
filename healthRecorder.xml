@@ -4,18 +4,37 @@
         <name>healthRecorder</name>
     </assembly>
     <members>
-        <member name="M:healthRecorder.Controllers.RecordsController.GetEmployees">
+        <member name="M:healthRecorder.Controllers.EmployeesController.GetEmployees">
             <summary>
-            Get a list of records for all employees
+            Get a list of all employees
             </summary>
-            <returns>An ActionResult of type IEnumerable of EmployeeDto</returns>
+            <returns>List of employees saved in database</returns>
+            <response code="200">Employees returned</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.EmployeesController.GetEmployee(System.String)">
+            <summary>
+            Get  an employee by his/her id 
+            </summary>
+            <param name="employeeId">The id of the employee you want to get</param>
+            <returns>An employee with id, ginNumber, name and records fields</returns>
+            <response code="200">Information of this employee returned</response>
+            <response code="404">Employee not found</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.GetRecords">
+            <summary>
+            Get a list of all recprds
+            </summary>
+            <returns>List of records saved in database</returns>
+            <response code="200">An ActionResult of list of type SingleRecordDto</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.GetRecordsForEmployee(System.String)">
             <summary>
             Get health records of an employee by his/her id 
             </summary>
-            <param name="employeeId"></param>
-            <returns>An ActionResult of type SingleRecordDto </returns>
+            <param name="employeeId">The id of the employee you want to get</param>
+            <returns>An ActionResult of list of type RecordDto</returns>
+            <response code="200">All records of this employee returned</response>
+            <response code="404">Employee not found</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.GetRecord(System.String,System.DateTime)">
             <summary>
@@ -24,6 +43,8 @@
             <param name="employeeId"></param>
             <param name="checkDate"></param>
             <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="200">Returns requested record</response>
+            <response code="404">Record not found</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.CreateRecord(healthRecorder.Models.RecordForCreationDto)">
             <summary>
@@ -31,6 +52,18 @@
             </summary>
             <param name="record"></param>
             <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="201">Record Added.</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsController.Put(System.String,System.DateTime,healthRecorder.Models.RecordForUpdateDto)">
+            <summary>
+            Update an existed record
+            </summary>
+            <param name="employeeId"></param>
+            <param name="checkDate"></param>
+            <param name="updatedRecord"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="204">Record updated.</response>
+            <response code="404">Record not found.</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.DeleteRecord(System.String,System.DateTime)">
             <summary>

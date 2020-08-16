@@ -12,10 +12,15 @@ namespace healthRecorder.Entities
 {
     public class Record
     {
-        [Key]
+
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        [BsonElement("RecordId")]
         public string Id { get; set; }
+
+        [Required]
+        [BsonElement("EmployeeId")]
+        public string EmployeeId { get; set; }
 
         [Required]
         [BsonElement("CheckDate")]
@@ -26,12 +31,5 @@ namespace healthRecorder.Entities
         public bool? HasSymptoms { get; set; }
 
         public double? Temperature { get; set; }
-
-        public string EmployeeId { get; set; }
-
-        //[BsonIgnore]
-        [ForeignKey("EmployeeId")]
-        public Employee Employee { get; set; }
-
     }
 }

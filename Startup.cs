@@ -12,10 +12,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 namespace healthRecorder
 {
@@ -42,25 +44,46 @@ namespace healthRecorder
             services.AddSwaggerGen(
                 setupAction =>
                 {
-                    //setupAction.SwaggerDoc(
-                    //    "RecordsOpenAPISpecification",
-                    //    new Microsoft.OpenApi.Models.OpenApiInfo()
-                    //    {
-                    //        Title = "Health Records API",
-                    //        Description = "Through this API you can access employee health records.",
-                    //    });
+                    setupAction.SwaggerDoc(
+                        "v1",
+                        new OpenApiInfo()
+                        {
+                            Title = "Health Records API",
+                            Description = "Through this API you can access employee health records.",
+                        });
 
                     var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                     var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
 
                     setupAction.IncludeXmlComments(xmlCommentsFullPath);
                 });
-
+            //services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IRecordsRepository, RecordsRepository>();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var actionExecutingContext =
+                        actionContext as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+
+                    // if there are modelstate errors & all keys were correctly
+                    // found/parsed we're dealing with validation errors
+                    if (actionContext.ModelState.ErrorCount > 0
+                        && actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
+                    {
+                        return new UnprocessableEntityObjectResult(actionContext.ModelState);
+                    }
+
+                    // if one of the keys wasn't correctly found / couldn't be parsed
+                    // we're dealing with null/unparsable input
+                    return new BadRequestObjectResult(actionContext.ModelState);
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,8 +114,9 @@ namespace healthRecorder
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
+                c.DocumentTitle = "OpenAPI specification for Health Recorder Application";
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Health Recorder API V1");
-                c.RoutePrefix = string.Empty;
+                c.RoutePrefix = "";
             });
 
             app.UseRouting();
