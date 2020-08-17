@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using healthRecorder.Contexts;
 using healthRecorder.Data;
 using healthRecorder.Models;
 using healthRecorder.Services;
@@ -39,7 +40,8 @@ namespace healthRecorder
             services.AddSingleton<IRecordsDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<RecordsDatabaseSettings>>().Value);
 
-            services.AddSingleton<RecordsRepository>();
+            //services.AddSingleton<RecordsRepository>();
+            services.AddScoped<IDbContext, MongoDbContext>();
 
             services.AddSwaggerGen(
                 setupAction =>

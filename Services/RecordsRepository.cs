@@ -1,4 +1,5 @@
-﻿using healthRecorder.Data;
+﻿using healthRecorder.Contexts;
+using healthRecorder.Data;
 using healthRecorder.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -13,69 +14,59 @@ namespace healthRecorder.Services
 {
     public class RecordsRepository : IRecordsRepository
     {
-        private readonly IMongoCollection<Employee> _employees;
-        private readonly IMongoCollection<Record> _records;
+        private IDbContext _context;
 
-        public RecordsRepository(IRecordsDatabaseSettings settings)
+        public RecordsRepository(IDbContext dbContext)
         {
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-
-            _employees = database.GetCollection<Employee>(settings.EmployeesCollectionName);
-            _records = database.GetCollection<Record>(settings.RecordsCollectionName);
+            _context = dbContext;
         }
 
         public IEnumerable<Employee> GetAllEmployees()
         {
-            return _employees.Find(new BsonDocument()).ToList();
+            return _context.Employees;
         }
 
         public Employee GetEmployee(string employeeId)
         {
-            var filter = Builders<Employee>.Filter.Eq("Id", employeeId);
-            return _employees.Find(filter).First();
+            return _context.Employees.First(e => e.Id == employeeId);
         }
 
         public IEnumerable<Record> GetAllRecords()
         {
-            return _records.Find(new BsonDocument()).ToList();
+            return _context.Records;
         }
 
         public IEnumerable<Record> GetRecordsForEmployee(string employeeId)
         {
-            var filter = Builders<Record>.Filter.Eq("EmployeeId", employeeId);
-            return _records.Find(filter).ToList();
+            return _context.Records.Where(x => x.EmployeeId == employeeId);
         }
 
         public Record GetRecord(string employeeId, DateTime checkDate)
         {
-            var records = GetRecordsForEmployee(employeeId);
-            return records.ToList().Find(x => x.CheckDate.Date == checkDate.Date);
+            return _context.Records.First(x => x.EmployeeId == employeeId && x.CheckDate.Date == checkDate.Date);
         }
 
         public void AddRecord(Record newRecord)
         {
-            _records.InsertOne(newRecord);
+            _context.AddRecord(newRecord);
         }
 
         public void DeleteRecord(string employeeId, DateTime checkDate)
         {
-            var builder = Builders<Record>.Filter;
-            var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
-            _records.DeleteOne(filter);
+            if (RecordExists(employeeId, checkDate))
+            {
+                _context.DeleteRecord(employeeId, checkDate);
+            }
         }
 
         public bool EmployeeExists(string employeedId)
         {
-            var filter = Builders<Employee>.Filter.Eq("Id", employeedId);
-            return _employees.Find(filter).Any();
+            return _context.Employees.Any(x => x.Id == employeedId);
         }
 
         public bool RecordExists(string employeeId, DateTime checkDate)
         {
-            var builder = Builders<Record>.Filter;
-            var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
-            return _records.Find(filter).Any();
+            return _context.Records.Any(x => x.EmployeeId == employeeId && x.CheckDate.Date == checkDate.Date);
         }
 
         public bool Save()
