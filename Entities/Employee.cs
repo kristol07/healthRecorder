@@ -12,7 +12,7 @@ namespace healthRecorder.Entities
     public class Employee
     {
         [BsonId]
-        public string Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
         public uint GinNumber { get; set; }

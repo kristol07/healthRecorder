@@ -53,6 +53,8 @@
             <param name="record"></param>
             <returns>An ActionResult of type SingleRecordDto</returns>
             <response code="201">Record Added.</response>
+            <response code="403">Same record existed already, \
+            can not create new record of same day for same employee</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.Put(System.String,System.DateTime,healthRecorder.Models.RecordForUpdateDto)">
             <summary>
@@ -72,6 +74,8 @@
             <param name="employeeId"></param>
             <param name="checkDate"></param>
             <returns>An ActionResult</returns>
+            <response code="204">Record deleted.</response>
+            <response code="404">Record not found.</response>
         </member>
         <member name="T:healthRecorder.Models.EmployeeDto">
             <summary>

@@ -116,10 +116,13 @@ namespace healthRecorder.Controllers
         /// <param name="record"></param>
         /// <returns>An ActionResult of type SingleRecordDto</returns>
         /// <response code="201">Record Added.</response>
+        /// <response code="403">Same record existed already, \
+        /// can not create new record of same day for same employee</response>
         [HttpPost("", Name = "AddNewRecord")]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(SingleRecordDto), 201)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         public ActionResult<SingleRecordDto> CreateRecord([FromBody, Required] RecordForCreationDto record)
         {
             try
@@ -141,7 +144,6 @@ namespace healthRecorder.Controllers
                             checkDate = recordToReturn.CheckDate
                         },
                         recordToReturn);
-
             }
             catch
             {
@@ -176,7 +178,6 @@ namespace healthRecorder.Controllers
                 _mapper.Map(updatedRecord, recordEntity);
 
                 _recordsRepository.AddRecord(recordEntity);
-                _recordsRepository.Save();
 
                 var recordToReturn = _mapper.Map<SingleRecordDto>(recordEntity);
                 return CreatedAtRoute("GetRecord",
@@ -200,6 +201,8 @@ namespace healthRecorder.Controllers
         /// <param name="employeeId"></param>
         /// <param name="checkDate"></param>
         /// <returns>An ActionResult</returns>
+        /// <response code="204">Record deleted.</response>
+        /// <response code="404">Record not found.</response>
         [HttpDelete("{employeeId}/{checkDate:DateTime}", Name = "DeleteRecord")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -213,7 +216,6 @@ namespace healthRecorder.Controllers
                 }
 
                 _recordsRepository.DeleteRecord(employeeId, checkDate);
-                _recordsRepository.Save();
 
                 return NoContent();
             }
