@@ -13,7 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace healthRecorder.Controllers
 {
     [Produces("application/json", "application/xml")]
-    [Route("api/employees")]
+    [Route("api/v2/employees")]
+    [ApiExplorerSettings(GroupName = "HealthRecordsOpenAPISpecificationV2")]
     [ApiController]
     [ProducesResponseType(500)]
     public class EmployeesController : ControllerBase

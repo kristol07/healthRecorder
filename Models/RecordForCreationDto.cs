@@ -16,7 +16,8 @@ namespace healthRecorder.Models
         /// <summary>
         /// Checkdate of this **record**
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "CheckDate input is required.")]
+        //[DataType(DataType.Date, ErrorMessage ="Invalid date value.")]
         public DateTime CheckDate { get; set; }
 
         [DefaultValue(false)]
@@ -28,7 +29,7 @@ namespace healthRecorder.Models
         /// <summary>
         /// The id of associated employee
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "EmployeeId input is required.")]
         public string EmployeeId { get; set; }
     }
 }

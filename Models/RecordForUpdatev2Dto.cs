@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace healthRecorder.Models
 {
-    public class RecordForUpdateDto
+    public class RecordForUpdatev2Dto
     {
         public bool? HasHighRiskRegionTravelHistory { get; set; }
 
@@ -15,5 +15,6 @@ namespace healthRecorder.Models
         [Required(ErrorMessage = "Temperature input is required.")]
         [Range(35, 45, ErrorMessage = "Invalid temperature value. 35\"C-45\"C")]
         public double? Temperature { get; set; }
+
     }
 }

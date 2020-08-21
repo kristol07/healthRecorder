@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +37,8 @@ namespace healthRecorder
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
+
             services.Configure<RecordsDatabaseSettings>(
                 Configuration.GetSection(nameof(RecordsDatabaseSettings)));
 
@@ -43,25 +48,30 @@ namespace healthRecorder
             //services.AddSingleton<RecordsRepository>();
             services.AddScoped<IDbContext, MongoDbContext>();
 
-            services.AddSwaggerGen(
-                setupAction =>
-                {
-                    setupAction.SwaggerDoc(
-                        "v1",
-                        new OpenApiInfo()
-                        {
-                            Title = "Health Records API",
-                            Description = "Through this API you can access employee health records.",
-                        });
+            services.AddSwaggerGen(setupAction =>
+            {
+                setupAction.SwaggerDoc(
+                    $"HealthRecordsOpenAPISpecificationV1",
+                    new OpenApiInfo()
+                    {
+                        Title = "Health Records API V1",
+                        Description = "Through this API you can access employee health records."
+                    });
 
-                    var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+                setupAction.SwaggerDoc(
+                    $"HealthRecordsOpenAPISpecificationV2",
+                    new OpenApiInfo()
+                    {
+                        Title = "Health Records API V2",
+                        Description = "Through this API you can access employee health records."
+                    });
 
-                    setupAction.IncludeXmlComments(xmlCommentsFullPath);
-                });
+                var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+                setupAction.IncludeXmlComments(xmlCommentsFullPath);
+            });
             //services.AddSwaggerGenNewtonsoftSupport();
-
-            services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IRecordsRepository, RecordsRepository>();
@@ -89,7 +99,7 @@ namespace healthRecorder
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)//, IApiVersionDescriptionProvider apiVersionDescriptionProvider)
         {
             if (env.IsDevelopment())
             {
@@ -114,11 +124,16 @@ namespace healthRecorder
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
+            app.UseSwaggerUI(setupAction =>
             {
-                c.DocumentTitle = "OpenAPI specification for Health Recorder Application";
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Health Recorder API V1");
-                c.RoutePrefix = "";
+                setupAction.SwaggerEndpoint("/swagger/HealthRecordsOpenAPISpecificationV1/swagger.json",
+                    "Health Recorder API V1");
+
+                setupAction.SwaggerEndpoint("/swagger/HealthRecordsOpenAPISpecificationV2/swagger.json",
+                    "Health Recorder API V2");
+
+                setupAction.DocumentTitle = "OpenAPI specification for Health Recorder Application";
+                setupAction.RoutePrefix = "";
             });
 
             app.UseRouting();

@@ -10,18 +10,22 @@ namespace healthRecorder.Services
     public interface IRecordsRepository
     {
 
-        IEnumerable<Record> GetAllRecords();
+        IEnumerable<Record> GetAllRecords(string employeeId = "");
         IEnumerable<Record> GetRecordsForEmployee(string employeeId);
         Record GetRecord(string employeeId, DateTime checkDate);
+        Record GetRecord(string recordId);
 
         IEnumerable<Employee> GetAllEmployees();
         Employee GetEmployee(string employeeId);
 
         void AddRecord(Record newRecord);
         void UpdateRecord(Record newRecord, string employeeId, DateTime checkDate);
+        void UpdateRecord(Record newRecord, string recordId);
         void DeleteRecord(string employeeId, DateTime checkDate);
+        void DeleteRecord(string recordId);
         bool EmployeeExists(string employeedId);
         bool RecordExists(string employeeId, DateTime checkDate);
+        bool RecordExists(string recordId);
         bool Save();
     }
 

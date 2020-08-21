@@ -18,6 +18,8 @@ namespace healthRecorder.Data
 
             CreateMap<RecordForUpdateDto, Record>();
 
+            CreateMap<RecordForUpdatev2Dto, Record>();
+
             CreateMap<Record, SingleRecordDto>();
         }
     }

@@ -15,5 +15,6 @@ namespace healthRecorder.Contexts
 
         void AddRecord(Record newRecord);
         void DeleteRecord(string employeeId, DateTime checkDate);
+        void DeleteRecord(string recordId);
     }
 }

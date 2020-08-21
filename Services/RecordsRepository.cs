@@ -31,9 +31,16 @@ namespace healthRecorder.Services
             return _context.Employees.First(e => e.Id == employeeId);
         }
 
-        public IEnumerable<Record> GetAllRecords()
+        public IEnumerable<Record> GetAllRecords(string employeeId = "")
         {
-            return _context.Records;
+            if (!string.IsNullOrWhiteSpace(employeeId))
+            {
+                return _context.Records.Where(x => x.EmployeeId == employeeId);
+            }
+            else
+            {
+                return _context.Records;
+            }
         }
 
         public IEnumerable<Record> GetRecordsForEmployee(string employeeId)
@@ -83,5 +90,31 @@ namespace healthRecorder.Services
             }
         }
 
+        public Record GetRecord(string recordId)
+        {
+            return _context.Records.First(x => x.Id == recordId);
+        }
+
+        public void UpdateRecord(Record newRecord, string recordId)
+        {
+            if (RecordExists(recordId))
+            {
+                DeleteRecord(recordId);
+                AddRecord(newRecord);
+            }
+        }
+
+        public void DeleteRecord(string recordId)
+        {
+            if (RecordExists(recordId))
+            {
+                _context.DeleteRecord(recordId);
+            }
+        }
+
+        public bool RecordExists(string recordId)
+        {
+            return _context.Records.Any(x => x.Id == recordId);
+        }
     }
 }

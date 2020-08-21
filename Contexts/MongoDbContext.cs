@@ -50,5 +50,10 @@ namespace healthRecorder.Contexts
             var filter = builder.Eq("CheckDate", checkDate) & builder.Eq("EmployeeId", employeeId);
             _recordsCollect.DeleteOne(filter);
         }
+
+        public void DeleteRecord(string recordId)
+        {
+            _recordsCollect.DeleteOne(Builders<Record>.Filter.Eq("Id", recordId));
+        }
     }
 }

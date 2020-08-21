@@ -53,8 +53,7 @@
             <param name="record"></param>
             <returns>An ActionResult of type SingleRecordDto</returns>
             <response code="201">Record Added.</response>
-            <response code="403">Same record existed already, \
-            can not create new record of same day for same employee</response>
+            <response code="403">Operation forbidden, check the employeeId or checkDate value.</response>
         </member>
         <member name="M:healthRecorder.Controllers.RecordsController.Put(System.String,System.DateTime,healthRecorder.Models.RecordForUpdateDto)">
             <summary>
@@ -73,6 +72,51 @@
             </summary>
             <param name="employeeId"></param>
             <param name="checkDate"></param>
+            <returns>An ActionResult</returns>
+            <response code="204">Record deleted.</response>
+            <response code="404">Record not found.</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsV2Controller.GetRecords(System.String)">
+            <summary>
+            Get a list of all recprds
+            </summary>
+            <param name="employeeId">Filter records for employeeId</param>
+            <returns>List of records saved in database</returns>
+            <response code="200">An ActionResult of list of type SingleRecordDto</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsV2Controller.GetRecord(System.String)">
+            <summary>
+            Get specific record
+            </summary>
+            <param name="recordId"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="200">Returns requested record</response>
+            <response code="404">Record not found</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsV2Controller.CreateRecord(healthRecorder.Models.RecordForCreationDto)">
+            <summary>
+            Add a new record for specific employee
+            </summary>
+            <param name="record"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="201">Record Added.</response>
+            <response code="403">Operation forbidden, check the employeeId or checkDate value.</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsV2Controller.Put(System.String,healthRecorder.Models.RecordForUpdatev2Dto)">
+            <summary>
+            Update an existed record
+            </summary>
+            <param name="recordId"></param>
+            <param name="updatedRecord"></param>
+            <returns>An ActionResult of type SingleRecordDto</returns>
+            <response code="204">Record updated.</response>
+            <response code="404">Record not found.</response>
+        </member>
+        <member name="M:healthRecorder.Controllers.RecordsV2Controller.DeleteRecord(System.String)">
+            <summary>
+            Delete one record
+            </summary>
+            <param name="recordId"></param>
             <returns>An ActionResult</returns>
             <response code="204">Record deleted.</response>
             <response code="404">Record not found.</response>
